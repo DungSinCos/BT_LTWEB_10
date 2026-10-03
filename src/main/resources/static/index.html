@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JWT Demo - Nimbus</title>
+  <style>
+    body{font:16px system-ui,sans-serif;max-width:760px;margin:40px auto;padding:0 18px;color:#18212b;background:#f5f7fa}
+    main{background:white;padding:24px;border-radius:14px;box-shadow:0 4px 22px #10203012} form{display:grid;gap:10px;margin:18px 0}
+    input,button{font:inherit;padding:10px;border:1px solid #ccd4dd;border-radius:8px}button{background:#1769aa;color:white;border:0;cursor:pointer}
+    pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#eef3f7;padding:14px;border-radius:8px;min-height:48px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:24px}@media(max-width:600px){.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body><main>
+  <h1>Demo xác thực JWT với Nimbus</h1>
+  <p>Đăng ký hoặc đăng nhập để nhận access token. Token được lưu trong trình duyệt hiện tại.</p>
+  <div class="row">
+    <section><h2>Đăng ký</h2>
+      <form id="register"><input name="username" placeholder="Tên đăng nhập" minlength="3" required><input name="email" type="email" placeholder="Email" required><input name="password" type="password" placeholder="Mật khẩu (ít nhất 8 ký tự)" minlength="8" required><button>Đăng ký</button></form>
+    </section>
+    <section><h2>Đăng nhập</h2>
+      <form id="login"><input name="username" placeholder="Tên đăng nhập" required><input name="password" type="password" placeholder="Mật khẩu" required><button>Đăng nhập</button></form>
+    </section>
+  </div>
+  <h2>Thông tin phiên</h2><button id="profile">Tải hồ sơ (/api/users/me)</button> <button id="logout" type="button">Đăng xuất</button>
+  <pre id="output">Chưa đăng nhập.</pre>
+</main>
+<script>
+const output=document.querySelector('#output');
+const show=(value)=>output.textContent=JSON.stringify(value,null,2);
+async function send(url,body){const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const data=await response.json();if(!response.ok)throw data;return data;}
+document.querySelector('#register').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.currentTarget));try{show(await send('/api/auth/register',d));}catch(err){show(err);}});
+document.querySelector('#login').addEventListener('submit',async e=>{e.preventDefault();const d=Object.fromEntries(new FormData(e.currentTarget));try{const data=await send('/api/auth/login',d);localStorage.setItem('accessToken',data.accessToken);show(data);}catch(err){show(err);}});
+document.querySelector('#profile').addEventListener('click',async()=>{const token=localStorage.getItem('accessToken');if(!token){show({message:'Hãy đăng nhập trước.'});return;}const r=await fetch('/api/users/me',{headers:{Authorization:`Bearer ${token}`}});show(await r.json());});
+document.querySelector('#logout').addEventListener('click',()=>{localStorage.removeItem('accessToken');show({message:'Đã đăng xuất khỏi trình duyệt.'});});
+</script></body></html>

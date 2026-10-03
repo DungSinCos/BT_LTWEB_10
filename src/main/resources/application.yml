@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: jwt-nimbus-spring
+  datasource:
+    url: jdbc:h2:mem:jwtdemo;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jackson:
+    default-property-inclusion: non_null
+server:
+  port: 8080
+security:
+  jwt:
+    issuer: jwt-nimbus-spring
+    expiration-seconds: 3600
+    # Local demo key only. Set JWT_SECRET to a private random value of at least 32 bytes outside class.
+    secret: ${JWT_SECRET:local-demo-key-change-me-please-32-bytes-minimum}
